@@ -1,0 +1,7 @@
+x = 2
+y = 3
+diga("A soma é: ")
+diga(x + y)
+
+nome = "Gaetanus"
+diga("Bem-vindo, " + nome)

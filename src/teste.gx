@@ -1,0 +1,12 @@
+x = 10
+y = 5
+
+mostra(x)
+mostra(y)
+mostra(x + y)
+
+funcao dobro(n) {
+    retorna n * 2
+}
+
+mostra(dobro(21))
