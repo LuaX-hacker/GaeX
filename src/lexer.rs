@@ -1,3 +1,5 @@
+use crate::error::{GaeXError, TipoErro};
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum Token {
 // Literais
@@ -211,7 +213,7 @@ match ident.as_str() {
 
 }
 
-fn ler_string(&mut self) -> Result<Token, String> {
+fn ler_string(&mut self) -> Result<Token, GaeXError> {
 
 self.advance();
 
@@ -253,16 +255,21 @@ match c {
             }    
 
             Some(outro) => {    
-                return Err(format!(    
-                    "Escape inválido '\\{}'",    
-                    outro    
-                ));    
+                return Err(GaeXError::novo(
+                     TipoErro::Lexico,
+                     format!("Escape inválido '\\{}'", outro),
+                     self.linha,
+                     self.coluna,
+                ));
             }    
 
             None => {    
-                return Err(    
-                    "String terminou após '\\'".to_string()    
-                );    
+                return Err(GaeXError::novo(
+    TipoErro::Lexico,
+    "String terminou após '\\'",
+    self.linha,
+    self.coluna,
+));
             }    
 
         }    
@@ -280,14 +287,16 @@ match c {
 
 }
 
-Err(format!(
-"String não finalizada (linha {})",
-self.linha
+Err(GaeXError::novo(
+    TipoErro::Lexico,
+    "String não finalizada.",
+    self.linha,
+    self.coluna,
 ))
 
 }
 
-pub fn tokenize(&mut self) -> Result<Vec<TokenInfo>, String> {
+pub fn tokenize(&mut self) -> Result<Vec<TokenInfo>, GaeXError> {
 
 let mut tokens = Vec::new();    
 
@@ -361,7 +370,7 @@ while !self.acabou() {
                         break;    
                     }    
 
-                    self.advance();    
+                     self.advance();    
 
                 }    
 
@@ -374,10 +383,12 @@ while !self.acabou() {
                 loop {    
 
                     if self.acabou() {    
-                        return Err(    
-                            "Comentário de bloco não fechado."    
-                                .to_string()    
-                        );    
+                        return Err(GaeXError::novo(
+    TipoErro::Lexico,
+    "Comentário de bloco não fechado.",
+    self.linha,
+    self.coluna,
+));    
                     }    
 
                     if self.peek() == Some('*')    
@@ -500,13 +511,11 @@ while !self.acabou() {
         // -------------------------    
         _ => {    
 
-            return Err(format!(
-
-"Erro léxico\nLinha: {}\nColuna: {}\nCaractere inesperado '{}'",
-self.linha,
-self.coluna,
-c
-
+            return Err(GaeXError::novo(
+    TipoErro::Lexico,
+    format!("Caractere inesperado '{}'", c),
+    self.linha,
+    self.coluna,
 ));
 
 }
@@ -514,12 +523,11 @@ c
 };    
 
     tokens.push(TokenInfo {
-    token,
-    linha: self.linha,
-    coluna: self.coluna,
-});
-
-}    
+        token,
+        linha,
+        coluna,
+    });
+}
 
 tokens.push(TokenInfo {
     token: Token::EOF,
@@ -528,7 +536,6 @@ tokens.push(TokenInfo {
 });
 
 Ok(tokens)
-
 }
 
 }

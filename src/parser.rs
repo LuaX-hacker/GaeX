@@ -1,4 +1,7 @@
-use crate::lexer::Token;
+use crate::{
+    lexer::{Token, TokenInfo},
+    error::{GaeXError, TipoErro},
+};
 
 #[derive(Debug, Clone)]
 pub enum Expr {
@@ -61,23 +64,17 @@ Empty,
 }
 
 pub struct Parser {
-
-tokens: Vec<Token>,
-pos: usize,
-
+    tokens: Vec<TokenInfo>,
+    pos: usize,
 }
 
 impl Parser {
 
-pub fn new(tokens: Vec<Token>) -> Self {
-
+pub fn new(tokens: Vec<TokenInfo>) -> Self {
 Self {
-
-tokens,
-pos: 0,
-
-}
-
+        tokens,
+        pos: 0,
+    }
 }
 
 fn acabou(&self) -> bool {
@@ -87,37 +84,21 @@ matches!(self.peek(), Token::EOF)
 }
 
 fn peek(&self) -> &Token {
-
-&self.tokens[self.pos]
-
+    &self.tokens[self.pos].token
 }
 
 fn peek_next(&self) -> &Token {
-
-if self.pos + 1 >= self.tokens.len() {
-
-self.peek()
-
-} else {
-
-&self.tokens[self.pos + 1]
-
-}
-
+    if self.pos + 1 >= self.tokens.len() {
+        self.peek()
+    } else {
+        &self.tokens[self.pos + 1].token
+    }
 }
 
 fn advance(&mut self) -> Token {
-
-let token = self.tokens[self.pos].clone();
-
-if !self.acabou() {
-
-self.pos += 1;
-
-}
-
-token
-
+    let token = self.tokens[self.pos].token.clone();
+    self.pos += 1;
+    token
 }
 
 fn check(&self, token: &Token) -> bool {
